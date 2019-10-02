@@ -6,14 +6,15 @@ dt = 100
 
 def main0():
     global time
-    xship = time/10
-    main(500, 400, 'cyan', 'blue', 'yellow', 20, 2 * pi / 4, 440, 60, 40, 50, 50, 15, 10, 'white', xship,230, 'brown', 'grey',
+    xship = time/10 
+    xwave = 10*cos(time/2)
+    main(500, 400, 'cyan', 'blue', 'yellow', xwave, 20, 2 * pi / 4, 440, 60, 40, 50, 50, 15, 10, 'white', xship,230, 'brown', 'grey',
          60, 300, 'red')
     time += dt
-def main(a,b,sky,water,send,rwave,alpha,xsun,ysun,rsun,xcloud,ycloud,oa,ob,cloudcolor,xship,yship,shipcolor,sail,xumb,yumb,umbcolor):
+def main(a,b,sky,water,send,xwave,rwave,alpha,xsun,ysun,rsun,xcloud,ycloud,oa,ob,cloudcolor,xship,yship,shipcolor,sail,xumb,yumb,umbcolor):
     background(a,b,sky,water,send)
     sun(xsun, ysun, rsun)
-    wave(b,0,b*3/4,rwave,alpha,water,send)
+    wave(a,xwave,b*3/4,rwave,alpha,water,send)
     cloud(xcloud,ycloud,oa,ob,cloudcolor)
     cloud(xcloud+150,ycloud+20,oa+5,ob+3,cloudcolor)
     ship(xship,yship,shipcolor,sail,1)
@@ -35,11 +36,11 @@ def sun(x,y,r):
     penColor(suncolor)
     brushColor(suncolor)
     circle(x,y,r)
-def wave(b,x,y,r,alpha,water,send):
+def wave(a,x,y,r,alpha,water,send):
     penSize(0.000005)
     """Рисует волнистое разделение между водой и песком"""
     l = 2*r*sin(alpha/2)    # l - длина по X одной дуги
-    k = int(b // l + 1)     # k - количество дуг на экране; про b читай ниже
+    k = int(a // l + 1)     # k - количество дуг на экране; про b читай ниже
     for i in range(k):
         arc(x, y+r*cos(alpha/2), r,alpha,send)
         rearc(x, y+r*cos(alpha/2), r,alpha,water)
