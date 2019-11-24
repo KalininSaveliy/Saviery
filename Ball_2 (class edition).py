@@ -11,7 +11,7 @@ canv = Canvas(root, bg='white')
 canv.pack(fill=BOTH, expand=1)
 score = 0
 text = canv.create_text(50, 50, text='Score: ' + str(score))
-kol_balls = 500     # количество шаров
+kol_balls = 10     # количество шаров
 balls = []
 
 
@@ -30,7 +30,7 @@ class Ball:
     def move(self):
         if self.x - self.r < 0 or self.x + self.r > a:
             self.dx *= -1
-        if self.y - self.r < 0 or self.y + self.r > a:
+        if self.y - self.r < 0 or self.y + self.r > b:
             self.dy *= -1
         canv.move(self.id, self.dx, self.dy)
         self.x += self.dx
@@ -65,5 +65,6 @@ def main():
     move_balls()
     canv.bind('<Button>', click)
     mainloop()
+
 
 main()
