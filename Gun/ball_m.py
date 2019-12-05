@@ -10,6 +10,7 @@ class Ball:
         x - начальное положение мяча по горизонтали
         y - начальное положение мяча по вертикали
         """
+        self.active = True  # флаг существования шарика
         self.a = a
         self.b = b
         self.canv = canvas
@@ -44,19 +45,24 @@ class Ball:
         self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
         и стен по краям окна (размер окна 800х600).
         """
+        ass = False
         if self.time == 0:
             self.canv.delete(self.id)
+            self.active = False
         dt = 1
         if self.x - self.r < 0 or self.x + self.r > self.a:
             self.vx *= -1
-        if self.y - self.r < 0 :
+        if self.y - self.r < 0:
             self.vy *= -1
         if self.y + self.r >= self.b:
-            self.vy *= - 0.8
+            ass = True
+            self.vy *= - 1
         self.x += self.vx * dt
         self.y += self.vy * dt
         self.vy += self.g * dt
         self.set_coords()
+        if ass:
+            self.vy *= 0.8
         self.time -= 1
 
     def hittest(self, obj):
@@ -67,7 +73,7 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        if (self.x - obj.x)**2 + (self.y - obj.y)**2 < (obj.r + self.r)**2:
+        if (self.x - obj.x)**2 + (self.y - obj.y)**2 < (obj.r + self.r)**2 and self.active:
             return True
         else:
             return False

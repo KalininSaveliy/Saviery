@@ -27,7 +27,7 @@ class Gun:
         new_ball.r += 5
         self.an = math.atan((event.y-new_ball.y) / (event.x-new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
-        new_ball.vy =  self.f2_power * math.sin(self.an)
+        new_ball.vy = self.f2_power * math.sin(self.an)
         balls += [new_ball]
         self.f2_on = 0
         self.f2_power = 10
@@ -65,27 +65,27 @@ class Target(ball_m.Ball):
         self.g = 0
         # FIXME: don't work!!! How to call this functions when object is created?
         #self.id = canv.create_oval(0, 0, 0, 0)
-        self.id_points = canv.create_text(30, 30, text=self.points, font='28')
+        # self.id_points = canv.create_text(30, 30, text=self.points, font='28')
 
     def new_target(self):
         """ Инициализация новой цели. """
-        self.x = rnd(600, 780)
+        self.x = rnd(600, 745)
         self.y = rnd(300, 550)
         self.r = rnd(2, 50)
         self.color = 'red'
         canv.coords(self.id, self.x-self.r, self.y-self.r, self.x+self.r, self.y+self.r)
         canv.itemconfig(self.id, fill=self.color)
 
-    def hit(self, points=1):
-        """Попадание шарика в цель."""
-        canv.coords(self.id, -10, -10, -10, -10)
-        self.points += points
-        canv.itemconfig(self.id_points, text=self.points)
+    # def hit(self, points=1):
+    #     """Попадание шарика в цель."""
+    #     canv.coords(self.id, -10, -10, -10, -10)
+    #     self.points += points
+    #     canv.itemconfig(self.id_points, text=self.points)
 
 
 def main():
-    global canv, target, gun, a, b, text, root, bullet, balls, targets, count_target
-    count_target = 2
+    global canv, target, gun, a, b, text, root, bullet, balls, targets, count_target, score, text_score
+    count_target = 10
     a = 800
     b = 600
     root = tk.Tk()
@@ -93,14 +93,16 @@ def main():
     canv = tk.Canvas(root, bg='white')
     canv.pack(fill=tk.BOTH, expand=1)
     text = canv.create_text(400, 300, text='', font='28')
+    text_score = canv.create_text(30, 30, text='Points:', font=28)
     gun = Gun()
     bullet = 0
     balls = []
+    score = 0
     new_game()
 
 
 def new_game():
-    global gun, target, text, balls, bullet, root, targets, count_target, a, b
+    global gun, target, text, balls, bullet, root, targets, count_target, a, b, score
     targets = []
     for t in range(count_target):
         targets.append(Target(canv, a, b))
@@ -113,28 +115,33 @@ def new_game():
     canv.bind('<Motion>', gun.targetting)
 
     z = 0.03
+    count_die = 0  # количество убитых целей
     for t in targets:
         t.live = 1
-        while t.live or balls:
+    while targets or balls:
+        for ball in balls:
+            ball.move()
+        for t in targets:
             t.move()
             for ball in balls:
-                ball.move()
                 if ball.hittest(t) and t.live:
                     t.live = 0
-                    t.hit()
-                    canv.bind('<Button-1>', '')
-                    canv.bind('<ButtonRelease-1>', '')
-                    canv.itemconfig(text, text='Вы уничтожили цель за ' + str(bullet) + ' выстрелов')
-                    for i in balls:
-                        canv.delete(i.id)
-                    balls = []
-                    for ta in targets:
-                        canv.delete(ta.id)
-            canv.update()
-            time.sleep(z)
-            gun.targetting()
-            gun.power_up()
-        break
+                    score += 1
+                    canv.itemconfig(text_score, text=score)
+                    canv.delete(t.id)
+                    count_die += 1
+                    if count_die == count_target:
+                        canv.bind('<Button-1>', '')
+                        canv.bind('<ButtonRelease-1>', '')
+                        canv.itemconfig(text, text='Вы уничтожили цель за ' + str(bullet) + ' выстрелов')
+                        for i in balls:
+                            canv.delete(i.id)
+                        balls = []
+                        targets = []
+        canv.update()
+        time.sleep(z)
+        gun.targetting()
+        gun.power_up()
     time.sleep(0.7)
     canv.itemconfig(text, text='')
     canv.delete(gun)
