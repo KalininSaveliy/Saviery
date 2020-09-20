@@ -1,0 +1,3 @@
+# Something strange
+Good luck finding the file you want!
+Be careful...
