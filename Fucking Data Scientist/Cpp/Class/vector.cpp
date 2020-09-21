@@ -48,9 +48,9 @@ class MyVector
             data[fullness] = x;
             fullness++;
         }
-        T operator [] (const int i)
+        T& operator [] (const int i)
         {
-            if (i >= fullness)
+            if (i >= length)
                 std::cout << "It's not your memory" << '\n';
             return data[i];
         }
@@ -79,6 +79,8 @@ int main()
     a.push_back(2);
     a.push_back(3);
     MyVector <int>b = a;
+    b[2] = 5;
+    std::cout << b[2] << '\n';  // 5
     b.pop_back();
     b.pop_back();
     std::cout << b.size() << b.capacity() << *(b.begin()) << b[0] << '\n';  // 1, 4, 1, 1
