@@ -11,7 +11,13 @@ class Complex
         double re;  // действительная часть
         double im;  // мнимая часть
     public:
-        explicit Complex(double real = 1.0, double image = 0.0)
+        Complex();
+        explicit Complex(double r)
+        {
+            re = r;
+            im = 0.0;
+        }
+        Complex(double real = 1.0, double image = 0.0)
         {
             re = real;
             im = image;
@@ -33,153 +39,84 @@ class Complex
             Complex z(re, -im);
             return z;
         }
-        Complex reverse()  // обратно число  
+        Complex reverse()  // обратное число  
         {
-            Complex rev(re / (re*re + im*im), -im / ((re*re + im*im)));
+            double abs = this->abs();
+            if (abs == 0)
+                std::cout << "Error: 0 division" << '\n';
+            Complex rev(re / abs, -im / abs);
             return rev;
         }
-        // Complex operator++();     // pre incriment
-        // Complex operator++(int);  // post incriment
-        bool operator == (Complex z)  // or use Complex &z ?
+        friend bool operator==(const Complex& lhs, const Complex& rhs)
         {
-            return ((re == z.Re()) && (im == z.Im())) ? true : false;
+            return ((lhs.re == rhs.re) && (lhs.im == rhs.im)) ? true : false;
         }
-        bool operator != (const Complex z)
+        friend bool operator!=(const Complex& lhs, const Complex& rhs)
         {
-            return (*this == z) ? false : true;
+            return (lhs == rhs) ? false : true;
         }
-        void operator += (Complex z)
+        friend Complex operator+(const Complex& lhs, const Complex& rhs)
         {
-            re += z.Re();  // or {  *this = z + *this; } ?
-            im += z.Im();
-        }
-        void operator += (double x)
-        {
-            re += x; 
-            im += x;
-        }
-        void operator -= (Complex z)
-        {
-            re -= z.Re();
-            im -= z.Im();
-        }
-        void operator -= (double x)
-        {
-            re -= x; 
-            im -= x;
-        }
-        void operator *= (Complex z)
-        {
-            re -= re * z.Re() - im * z.Im();
-            im -= re * z.Im() + im * z.Re();
-        }
-        void operator *= (double x)
-        {
-            re *= x; 
-            im *= x;
-        }
-        template <typename T>
-        void operator /= (T z)
-        {
-            Complex tmp = *this / z;
-            *this = tmp;
-        }
-        Complex operator + (Complex z)
-        {
-            Complex res(re + z.Re(), im + z.Im());  // не хочет жить с const
+            Complex res(lhs.re + rhs.re, lhs.im + rhs.im);
             return res;
         }
-        Complex operator + (const double x)  // а если будет не double? мне шаблон писать, или пусть компилятор типы приводит?
+        void operator+=(const Complex& rhs)
         {
-            Complex res(re + x, im);  // or {  Complex tmp(x,0);  return *this * tmp;} ?
+            *this = *this + rhs;
+        }
+        friend Complex operator-(const Complex& lhs, const Complex& rhs)
+        {
+            Complex res(lhs.re - rhs.re, lhs.im - rhs.im);
             return res;
         }
-        Complex operator - (Complex z)
+        void operator-=(const Complex& rhs)
         {
-            Complex res(re - z.Re(), im - z.Im());
+            *this = *this - rhs;
+        }
+        Complex operator-()
+        {
+            return (0.0, 0.0) - *this;
+        }
+        friend Complex operator*(const Complex& lhs, const Complex& rhs)
+        {
+            Complex res(lhs.re * rhs.re - lhs.im * rhs.im,
+                        lhs.re * rhs.re + lhs.im * rhs.re);
             return res;
         }
-        Complex operator - (const double x)
+        void operator*=(const Complex& rhs)
         {
-            Complex res(re - x, im);
+            *this = *this * rhs;
+        }
+        friend Complex operator/(const Complex& lhs, Complex& rhs)  // я хочу cooooonst
+        {
+            Complex res = lhs * rhs.reverse();
             return res;
         }
-        Complex operator * (Complex z)
+        void operator/=(Complex& rhs)
         {
-            Complex res(re * z.Re() - im * z.Im(), re * z.Im() + im * z.Re());
-            return res;
+            *this = *this / rhs;
         }
-        Complex operator * (const double x)
+        friend std::ostream& operator<<(std::ostream os, const Complex& rhs)
         {
-            Complex res(re * x, im * x);
-            return res;
+            return os << rhs.re << " + i * " << rhs.im;
         }
-        Complex operator / (Complex z)
-        {
-            if (z.Re() == 0 && z.Im() == 0)  // write normal exception
-                std::cout << "Heeeeeelp, 0 divison" << '\n';
-            else
-            {
-                Complex res = *this * z.reverse();  // надеюсь, это скромное равно ничего не скрывает
-                return res;
-            }
-        }
-        Complex operator / (const double x)
-        {
-            if (x == 0)
-                std::cout << "Heeeeeelp, 0 divison" << '\n';
-            else
-            {
-                Complex res(re / x, im / x);
-                return res;
-            }
-        }
-        // ~Complex();  // и что тут писать ?
 };
-
-
-// А зачем вставлять это в класс ( friend Complex operator+ (double lval, Complex rval); ) ?
-// Чтобы заменит z.Re() на z.re ?
-std::ostream& operator << (std::ostream out, Complex z)
-{
-    return out << "(" << z.Re() << ", " << z.Im() << ")";
-}
-Complex operator+ (const double lval, Complex rval)
-{
-    return rval + lval;
-}
-Complex operator- (const double lval, Complex rval)
-{
-    return rval - lval;
-}
-Complex operator- (Complex z)
-{
-    return 0 - z;
-}
-Complex operator* (const double lval, Complex rval)
-{
-    return rval * lval;
-}
-Complex operator/ (const double lval, Complex rval)
-{
-    return rval / lval;
-}
 
 
 
 int main()
 {
     Complex a(3, 4);
-    std::cout << "Expected: 3 -4 5" << a.conjugate().Re() << a.conjugate().Im() << a.conjugate().abs() << '\n';
+    std::cout << "Expected: 3 -4 5: " << a.conjugate().Re() << a.conjugate().Im() << a.conjugate().abs() << '\n';
     
-    std::cout << "Expected: (6,8) (6,8) (-1,24) (1.5,2) (0.6,-0.8) (6,-8) (1,0): \n" << a*2 ;//<< 2*a << a*a << a/2 << a.reverse() << 10/a << a/a << '\n';
+    std::cout << "Expected: (6,8) (6,8) (-1,24) (1.5,2) (0.6,-0.8) (6,-8) (1,0): \n" << a*2 << 2*a << a*a << a/2 << a.reverse() << 10/a << a/a << '\n';
     Complex b = a;
     if (a == b)
-        std::cout << "Ok" << '\n';
+        std::cout << " \"==\" Ok" << '\n';
     else
         std::cout << "Probelms with ==" << '\n';
     if (-a != b)
-        std::cout << "Ok" << '\n';
+        std::cout << " \"!=\" Ok" << '\n';
     else
         std::cout << "Probelms with !=" << '\n';
 
